@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
+import { Alert } from '../types';
 import {
-  Alert,
+  Maybe,
   Cost,
   Entity,
   Group,
   Project,
-  Maybe,
   MetricData,
-} from '../types';
+} from '@backstage/plugin-cost-insights-common';
 import { createApiRef } from '@backstage/core-plugin-api';
 
 /** @public */
