@@ -61,7 +61,10 @@ export type TechDocsReaderPageHeaderProps = PropsWithChildren<{
  * the Tech Docs add-ons to customize it
  * @public
  */
-export const TechDocsReaderPageHeader = () => {
+export const TechDocsReaderPageHeader = (
+  props: TechDocsReaderPageHeaderProps,
+) => {
+  const { children } = props;
   const addons = useTechDocsAddons();
   const configApi = useApi(configApiRef);
 
@@ -168,6 +171,7 @@ export const TechDocsReaderPageHeader = () => {
         <title>{tabTitle}</title>
       </Helmet>
       {labels}
+      {children}
       {addons.renderComponentsByLocation(locations.Header)}
     </Header>
   );

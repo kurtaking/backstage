@@ -27,11 +27,7 @@ import {
   TechDocsMetadata,
 } from '@backstage/plugin-techdocs-react';
 import { EventSourcePolyfill } from 'event-source-polyfill';
-import {
-  SyncResult,
-  TechDocsApi,
-  TechDocsStorageApi,
-} from '@backstage/plugin-techdocs-react';
+import { SyncResult, TechDocsApi, TechDocsStorageApi } from './api';
 
 /**
  * API to talk to `techdocs-backend`.

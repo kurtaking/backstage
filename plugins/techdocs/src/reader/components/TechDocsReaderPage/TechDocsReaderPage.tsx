@@ -183,7 +183,7 @@ export const TechDocsReaderPage = (props: TechDocsReaderPageProps) => {
   // As explained above, a render function is configuration 3 and React element is 2
   return (
     <TechDocsReaderPageProvider entityRef={entityRef}>
-      {({ metadata, entityMetadata }) => (
+      {({ metadata, entityMetadata, onReady }) => (
         <div className="techdocs-reader-page">
           <Page themeId="documentation">
             {children instanceof Function
@@ -191,6 +191,7 @@ export const TechDocsReaderPage = (props: TechDocsReaderPageProps) => {
                   entityRef,
                   techdocsMetadataValue: metadata.value,
                   entityMetadataValue: entityMetadata.value,
+                  onReady,
                 })
               : children}
           </Page>
