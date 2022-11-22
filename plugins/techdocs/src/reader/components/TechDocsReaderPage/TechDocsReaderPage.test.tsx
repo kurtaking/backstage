@@ -22,7 +22,10 @@ import { lightTheme } from '@backstage/theme';
 import { entityRouteRef } from '@backstage/plugin-catalog-react';
 import { renderInTestApp, TestApiProvider } from '@backstage/test-utils';
 
-import { techdocsApiRef, techdocsStorageApiRef } from '../../../api';
+import {
+  techdocsApiRef,
+  techdocsStorageApiRef,
+} from '@backstage/plugin-techdocs-react';
 
 import { rootRouteRef, rootDocsRouteRef } from '../../../routes';
 
