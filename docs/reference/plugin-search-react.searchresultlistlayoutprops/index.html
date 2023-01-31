@@ -7,11 +7,12 @@
 <p>Props for <a href="/docs/reference/plugin-search-react.searchresultlistlayout">SearchResultListLayout()</a></p>
 <p><b>Signature:</b></p>
 <pre><code class="hljs css language-typescript"><span class="hljs-keyword">type</span> SearchResultListLayoutProps = ListProps &amp; {
-    resultItems?: SearchResult[];
-    renderResultItem?: <span class="hljs-function">(<span class="hljs-params">value: SearchResult, index: <span class="hljs-built_in">number</span>, array: SearchResult[]</span>) =&gt;</span> JSX.Element | <span class="hljs-literal">null</span>;
     error?: <span class="hljs-built_in">Error</span>;
     loading?: <span class="hljs-built_in">boolean</span>;
+    resultItems?: SearchResult[];
+    renderResultItem?: <span class="hljs-function">(<span class="hljs-params">value: SearchResult, index: <span class="hljs-built_in">number</span>, array: SearchResult[]</span>) =&gt;</span> JSX.Element | <span class="hljs-literal">null</span>;
     noResultsComponent?: ReactNode;
+    disableRenderingWithNoResults?: <span class="hljs-built_in">boolean</span>;
 };
 </code></pre>
 <p><b>References:</b> <a href="/docs/reference/plugin-search-common.searchresult">SearchResult</a></p>
@@ -28,9 +29,9 @@
                 });
               </script><script>
               var search = docsearch({
-                
-                apiKey: '8d115c9875ba0f4feaee95bab55a1645',
-                indexName: 'backstage',
+                appId: 'JCMFNHCHI8',
+                apiKey: '10b9e6c92a4513c1cf390f50e53aad1f',
+                indexName: 'backstage_io',
                 inputSelector: '#search_input_react'
               });
             </script></body></html>
