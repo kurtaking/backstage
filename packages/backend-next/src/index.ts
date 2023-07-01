@@ -37,6 +37,7 @@ import { azureDevOpsPlugin } from '@backstage/plugin-azure-devops-backend';
 import { linguistPlugin } from '@backstage/plugin-linguist-backend';
 import { devtoolsPlugin } from '@backstage/plugin-devtools-backend';
 import { TaskScheduleDefinition } from '@backstage/backend-tasks';
+import { graphqlPlugin } from '@backstage/plugin-graphql-backend';
 
 const backend = createBackend();
 
@@ -90,6 +91,9 @@ backend.add(searchModuleExploreCollator());
 
 // Kubernetes
 backend.add(kubernetesPlugin());
+
+// GraphQL
+// backend.add(graphqlPlugin());
 
 // Permissions
 backend.add(permissionPlugin());
