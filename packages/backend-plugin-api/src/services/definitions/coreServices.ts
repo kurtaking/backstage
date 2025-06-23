@@ -253,6 +253,17 @@ export namespace coreServices {
   >({ id: 'core.rootLogger', scope: 'root' });
 
   /**
+   * Root-level telemetry.
+   *
+   * See {@link RootTelemetryService}
+   * and {@link https://backstage.io/docs/backend-system/core-services/root-telemetry | the service docs}
+   * for more information.
+   */
+  export const rootTelemetry = createServiceRef<
+    import('./RootTelemetryService').RootTelemetryService
+  >({ id: 'core.rootTelemetry', scope: 'root' });
+
+  /**
    * Scheduling of distributed background tasks.
    *
    * See {@link SchedulerService}
