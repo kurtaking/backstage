@@ -62,7 +62,15 @@ export type { RootHealthService } from './RootHealthService';
 export type { RootHttpRouterService } from './RootHttpRouterService';
 export type { RootLifecycleService } from './RootLifecycleService';
 export type { RootLoggerService } from './RootLoggerService';
-export type { RootTelemetryService } from './RootTelemetryService';
+export type {
+  RootTelemetryService,
+  TelemetryServicePluginOptions,
+} from './RootTelemetryService';
+export type {
+  TelemetryService,
+  CounterMetric,
+  MetricOptions,
+} from './TelemetryService';
 export { readSchedulerServiceTaskScheduleDefinitionFromConfig } from './SchedulerService';
 export type {
   SchedulerService,

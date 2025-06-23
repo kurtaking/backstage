@@ -17,10 +17,18 @@ import {
   createServiceFactory,
   coreServices,
 } from '@backstage/backend-plugin-api';
-import { DefaultRootTelemetryService } from './DefaultRootTelemetryService';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { createRootTelemetryService } from './createRootTelemetryService';
+import {
+  defaultResource,
+  resourceFromAttributes,
+} from '@opentelemetry/resources';
+import {
+  ATTR_SERVICE_NAME,
+  ATTR_SERVICE_VERSION,
+} from '@opentelemetry/semantic-conventions';
 
 export const rootTelemetryServiceFactory = createServiceFactory({
   service: coreServices.rootTelemetry,
@@ -28,8 +36,20 @@ export const rootTelemetryServiceFactory = createServiceFactory({
     rootLifecycle: coreServices.rootLifecycle,
   },
   async factory({ rootLifecycle }) {
+    const rootServiceName = 'backstage';
+    const rootServiceVersion = '0.0.0';
+
+    const resource = defaultResource().merge(
+      resourceFromAttributes({
+        [ATTR_SERVICE_NAME]: rootServiceName,
+        [ATTR_SERVICE_VERSION]: rootServiceVersion,
+      }),
+    );
+
     const prometheus = new PrometheusExporter();
+
     const sdk = new NodeSDK({
+      resource,
       metricReader: prometheus,
       instrumentations: [getNodeAutoInstrumentations()],
     });
@@ -37,6 +57,6 @@ export const rootTelemetryServiceFactory = createServiceFactory({
     rootLifecycle.addBeforeShutdownHook(() => sdk.shutdown());
     rootLifecycle.addStartupHook(() => sdk.start());
 
-    return DefaultRootTelemetryService.create(sdk);
+    return createRootTelemetryService({ rootServiceName });
   },
 });

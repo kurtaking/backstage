@@ -1,5 +1,3 @@
-import { TelemetryService } from './TelemetryService';
-
 /*
  * Copyright 2025 The Backstage Authors
  *
@@ -15,10 +13,5 @@ import { TelemetryService } from './TelemetryService';
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface TelemetryServicePluginOptions {
-  pluginId: string;
-}
 
-export interface RootTelemetryService extends TelemetryService {
-  forPlugin(opts: TelemetryServicePluginOptions): TelemetryService;
-}
+export { DefaultTelemetryService } from './DefaultTelemetryService';

@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { MetricOptions as OtelMetricOptions } from '@opentelemetry/api';
 
-import { RootTelemetryService } from '@backstage/backend-plugin-api';
-import { NodeSDK } from '@opentelemetry/sdk-node';
+export type MetricOptions<T extends OtelMetricOptions = {}> = T;
 
-export class DefaultRootTelemetryService implements RootTelemetryService {
-  private constructor(private readonly sdk: NodeSDK) {}
+export interface CounterMetric {
+  add(value: number, attributes?: Record<string, string>): void;
+  increment(attributes?: Record<string, string>): void;
+}
 
-  static create(sdk: NodeSDK): DefaultRootTelemetryService {
-    return new DefaultRootTelemetryService(sdk);
-  }
-
-  getSDK(): NodeSDK {
-    return this.sdk;
-  }
+export interface TelemetryService {
+  createCounter(
+    name: string,
+    options?: MetricOptions<OtelMetricOptions>,
+  ): CounterMetric;
 }
