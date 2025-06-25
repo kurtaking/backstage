@@ -23,7 +23,7 @@ import { assertError, serializeError, stringifyError } from '@backstage/errors';
 import { Hash } from 'crypto';
 import stableStringify from 'fast-json-stable-stringify';
 import { Knex } from 'knex';
-import { metrics, trace } from '@opentelemetry/api';
+import { trace } from '@opentelemetry/api';
 import { ProcessingDatabase, RefreshStateItem } from '../database/types';
 import { createCounterMetric, createSummaryMetric } from '../util/metrics';
 import { CatalogProcessingOrchestrator, EntityProcessingResult } from './types';
@@ -39,6 +39,7 @@ import { deleteOrphanedEntities } from '../database/operations/util/deleteOrphan
 import { EventBroker, EventsService } from '@backstage/plugin-events-node';
 import { CATALOG_ERRORS_TOPIC } from '../constants';
 import { LoggerService, SchedulerService } from '@backstage/backend-plugin-api';
+import { TelemetryService } from '../telemetry/CatalogTelemetry';
 
 const CACHE_TTL = 5;
 
@@ -89,6 +90,7 @@ export class DefaultCatalogProcessingEngine {
     }) => Promise<void> | void;
     tracker?: ProgressTracker;
     eventBroker?: EventBroker | EventsService;
+    telemetry: TelemetryService;
   }) {
     this.config = options.config;
     this.scheduler = options.scheduler;
@@ -101,7 +103,7 @@ export class DefaultCatalogProcessingEngine {
     this.pollingIntervalMs = options.pollingIntervalMs ?? 1_000;
     this.orphanCleanupIntervalMs = options.orphanCleanupIntervalMs ?? 30_000;
     this.onProcessingError = options.onProcessingError;
-    this.tracker = options.tracker ?? progressTracker();
+    this.tracker = options.tracker ?? progressTracker(options.telemetry);
     this.eventBroker = options.eventBroker;
 
     this.stopFunc = undefined;
@@ -389,7 +391,7 @@ export class DefaultCatalogProcessingEngine {
 }
 
 // Helps wrap the timing and logging behaviors
-function progressTracker() {
+function progressTracker(telemetry: TelemetryService) {
   // prom-client metrics are deprecated in favour of OpenTelemetry metrics.
   const promProcessedEntities = createCounterMetric({
     name: 'catalog_processed_entities_count',
@@ -411,13 +413,12 @@ function progressTracker() {
     help: 'The amount of delay between being scheduled for processing, and the start of actually being processed, DEPRECATED, use OpenTelemetry metrics instead',
   });
 
-  const meter = metrics.getMeter('default');
-  const processedEntities = meter.createCounter(
+  const processedEntities = telemetry.createCounter(
     'catalog.processed.entities.count',
     { description: 'Amount of entities processed' },
   );
 
-  const processingDuration = meter.createHistogram(
+  const processingDuration = telemetry.createHistogram(
     'catalog.processing.duration',
     {
       description: 'Time spent executing the full processing flow',
@@ -425,7 +426,7 @@ function progressTracker() {
     },
   );
 
-  const processorsDuration = meter.createHistogram(
+  const processorsDuration = telemetry.createHistogram(
     'catalog.processors.duration',
     {
       description: 'Time spent executing catalog processors',
@@ -433,7 +434,7 @@ function progressTracker() {
     },
   );
 
-  const processingQueueDelay = meter.createHistogram(
+  const processingQueueDelay = telemetry.createHistogram(
     'catalog.processing.queue.delay',
     {
       description:

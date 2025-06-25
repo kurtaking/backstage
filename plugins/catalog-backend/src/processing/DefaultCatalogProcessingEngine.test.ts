@@ -23,6 +23,10 @@ import { CatalogProcessingOrchestrator } from './types';
 import { Stitcher } from '../stitching/types';
 import { ConfigReader } from '@backstage/config';
 import { mockServices } from '@backstage/backend-test-utils';
+import { TelemetryService } from '../telemetry/CatalogTelemetry';
+
+// todo: mock telemetry service
+const telemetry = {} as unknown as TelemetryService;
 
 describe('DefaultCatalogProcessingEngine', () => {
   const db = {
@@ -62,6 +66,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       state: {},
       refreshKeys: [],
     });
+
     const engine = new DefaultCatalogProcessingEngine({
       config: new ConfigReader({}),
       logger: mockServices.logger.mock(),
@@ -70,6 +75,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       orchestrator: orchestrator,
       stitcher: stitcher,
       createHash: () => hash,
+      telemetry,
     });
 
     db.transaction.mockImplementation(cb => cb((() => {}) as any));
@@ -137,6 +143,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       orchestrator: orchestrator,
       stitcher: stitcher,
       createHash: () => hash,
+      telemetry,
     });
 
     db.transaction.mockImplementation(cb => cb((() => {}) as any));
@@ -220,6 +227,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       orchestrator: orchestrator,
       stitcher: stitcher,
       createHash: () => hash,
+      telemetry,
     });
 
     db.transaction.mockImplementation(cb => cb((() => {}) as any));
@@ -297,6 +305,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       orchestrator: orchestrator,
       stitcher: stitcher,
       createHash: () => hash,
+      telemetry,
     });
 
     db.transaction.mockImplementation(cb => cb((() => {}) as any));
@@ -357,6 +366,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       stitcher: stitcher,
       createHash: () => hash,
       pollingIntervalMs: 100,
+      telemetry,
     });
 
     db.transaction.mockImplementation(cb => cb((() => {}) as any));
@@ -472,6 +482,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       stitcher: stitcher,
       createHash: () => hash,
       pollingIntervalMs: 100,
+      telemetry,
     });
 
     db.transaction.mockImplementation(cb => cb((() => {}) as any));
@@ -577,6 +588,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       stitcher: stitcher,
       createHash: () => hash,
       pollingIntervalMs: 100,
+      telemetry,
     });
 
     db.transaction.mockImplementation(cb => cb((() => {}) as any));
@@ -660,6 +672,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       stitcher: stitcher,
       createHash: () => hash,
       pollingIntervalMs: 100,
+      telemetry,
     });
 
     db.transaction.mockImplementation(cb => cb((() => {}) as any));
@@ -748,6 +761,7 @@ describe('DefaultCatalogProcessingEngine', () => {
       stitcher: stitcher,
       createHash: () => hash,
       pollingIntervalMs: 100,
+      telemetry,
     });
 
     db.transaction.mockImplementation(cb => cb((() => {}) as any));

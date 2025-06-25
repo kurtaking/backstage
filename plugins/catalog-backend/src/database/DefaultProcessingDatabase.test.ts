@@ -36,11 +36,14 @@ import { createRandomProcessingInterval } from '../processing/refresh';
 import { timestampToDateTime } from './conversion';
 import { generateStableHash } from './util';
 import { LoggerService } from '@backstage/backend-plugin-api';
+import { TelemetryService } from '../telemetry/CatalogTelemetry';
 
 jest.setTimeout(60_000);
 
 describe('DefaultProcessingDatabase', () => {
   const defaultLogger = mockServices.logger.mock();
+  // todo: mock telemetry service
+  const telemetry = {} as unknown as TelemetryService;
   const databases = TestDatabases.create();
 
   async function createDatabase(
@@ -58,6 +61,7 @@ describe('DefaultProcessingDatabase', () => {
           minSeconds: 100,
           maxSeconds: 150,
         }),
+        telemetry,
       }),
     };
   }

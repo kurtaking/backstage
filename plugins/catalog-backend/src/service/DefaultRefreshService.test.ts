@@ -38,8 +38,12 @@ import { DefaultRefreshService } from './DefaultRefreshService';
 import { ConfigReader } from '@backstage/config';
 import { DefaultStitcher } from '../stitching/DefaultStitcher';
 import { LoggerService } from '@backstage/backend-plugin-api';
+import { TelemetryService } from '../telemetry/CatalogTelemetry';
 
 jest.setTimeout(60_000);
+
+// todo: mock telemetry service
+const telemetry = {} as unknown as TelemetryService;
 
 describe('DefaultRefreshService', () => {
   const defaultLogger = mockServices.logger.mock();
@@ -57,6 +61,7 @@ describe('DefaultRefreshService', () => {
         database: knex,
         logger,
         refreshInterval: () => 100,
+        telemetry,
       }),
       catalogDb: new DefaultCatalogDatabase({
         database: knex,
@@ -161,6 +166,7 @@ describe('DefaultRefreshService', () => {
       },
       createHash: () => createHash('sha1'),
       pollingIntervalMs: 50,
+      telemetry,
     });
 
     return engine;

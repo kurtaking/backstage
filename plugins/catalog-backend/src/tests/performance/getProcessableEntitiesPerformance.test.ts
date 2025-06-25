@@ -19,6 +19,7 @@ import { Knex } from 'knex';
 import { DefaultProcessingDatabase } from '../../database/DefaultProcessingDatabase';
 import { applyDatabaseMigrations } from '../../database/migrations';
 import { describePerformanceTest, performanceTraceEnabled } from './lib/env';
+import { TelemetryService } from '../../telemetry/CatalogTelemetry';
 
 // #region Helpers
 
@@ -80,6 +81,8 @@ describePerformanceTest('getProcessableEntities', () => {
           database: knex,
           logger: mockServices.logger.mock(),
           refreshInterval: () => 0,
+          // todo: mock telemetry service
+          telemetry: {} as unknown as TelemetryService,
         });
 
         const start = Date.now();

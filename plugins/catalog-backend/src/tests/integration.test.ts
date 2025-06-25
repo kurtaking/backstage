@@ -56,6 +56,7 @@ import { mockServices, TestDatabases } from '@backstage/backend-test-utils';
 import { LoggerService } from '@backstage/backend-plugin-api';
 import { entitiesResponseToObjects } from '../service/response';
 import { deleteOrphanedEntities } from '../database/operations/util/deleteOrphanedEntities';
+import { TelemetryService } from '../telemetry/CatalogTelemetry';
 
 const voidLogger = mockServices.logger.mock();
 
@@ -241,10 +242,13 @@ class TestHarness {
       database: options.db,
       logger,
     });
+    // todo: mock telemetry service
+    const telemetry = {} as unknown as TelemetryService;
     const processingDatabase = new DefaultProcessingDatabase({
       database: options.db,
       logger,
       refreshInterval: () => 0.05,
+      telemetry,
     });
 
     const integrations = ScmIntegrations.fromConfig(config);
@@ -302,6 +306,7 @@ class TestHarness {
         proxyProgressTracker.reportError(event.unprocessedEntity, event.errors);
       },
       tracker: proxyProgressTracker,
+      telemetry,
     });
 
     const refresh = new DefaultRefreshService({ database: catalogDatabase });

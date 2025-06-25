@@ -111,6 +111,7 @@ import {
   catalogEntityPermissionResourceRef,
   CatalogPermissionRuleInput,
 } from '@backstage/plugin-catalog-node/alpha';
+import { CatalogTelemetry } from '../telemetry/CatalogTelemetry';
 
 export type CatalogEnvironment = {
   logger: LoggerService;
@@ -482,11 +483,15 @@ export class CatalogBuilder {
       logger,
     });
 
+    // todo: inject telemetry service from env
+    const telemetry = new CatalogTelemetry();
+
     const processingDatabase = new DefaultProcessingDatabase({
       database: dbClient,
       logger,
       refreshInterval: this.processingInterval,
       eventBroker: this.eventBroker,
+      telemetry,
     });
     const providerDatabase = new DefaultProviderDatabase({
       database: dbClient,
@@ -587,6 +592,7 @@ export class CatalogBuilder {
         this.onProcessingError?.(event);
       },
       eventBroker: this.eventBroker,
+      telemetry,
     });
 
     const locationAnalyzer =
