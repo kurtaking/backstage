@@ -30,6 +30,33 @@ export interface TelemetryService {
   createObservableGauge(name: string, options?: MetricOptions): ObservableGauge;
 }
 
+export class DefaultTelemetryService implements TelemetryService {
+  private readonly meter: Meter;
+
+  constructor() {
+    this.meter = metrics.getMeter('default');
+  }
+
+  createCounter(name: string, options?: MetricOptions): Counter {
+    return this.meter.createCounter(name, options);
+  }
+
+  createHistogram(name: string, options?: MetricOptions): Histogram {
+    return this.meter.createHistogram(name, options);
+  }
+
+  createGauge(name: string, options?: MetricOptions): Gauge {
+    return this.meter.createGauge(name, options);
+  }
+
+  createObservableGauge(
+    name: string,
+    options?: MetricOptions,
+  ): ObservableGauge {
+    return this.meter.createObservableGauge(name, options);
+  }
+}
+
 export class CatalogTelemetry implements TelemetryService {
   private readonly meter: Meter;
 

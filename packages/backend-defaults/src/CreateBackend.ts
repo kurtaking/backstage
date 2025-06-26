@@ -34,6 +34,8 @@ import { rootLoggerServiceFactory } from '@backstage/backend-defaults/rootLogger
 import { schedulerServiceFactory } from '@backstage/backend-defaults/scheduler';
 import { urlReaderServiceFactory } from '@backstage/backend-defaults/urlReader';
 import { userInfoServiceFactory } from '@backstage/backend-defaults/userInfo';
+import { telemetryServiceFactory } from '@backstage/backend-defaults/telemetry';
+import { rootTelemetryServiceFactory } from '@backstage/backend-defaults/rootTelemetry';
 import { eventsServiceFactory } from '@backstage/plugin-events-node';
 import {
   actionsRegistryServiceFactory,
@@ -61,6 +63,8 @@ export const defaultServiceFactories = [
   userInfoServiceFactory,
   urlReaderServiceFactory,
   eventsServiceFactory,
+  telemetryServiceFactory,
+  rootTelemetryServiceFactory,
 
   // alpha services
   actionsRegistryServiceFactory,

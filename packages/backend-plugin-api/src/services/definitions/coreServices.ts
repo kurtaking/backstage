@@ -252,6 +252,14 @@ export namespace coreServices {
     import('./RootLoggerService').RootLoggerService
   >({ id: 'core.rootLogger', scope: 'root' });
 
+  export const rootTelemetry = createServiceRef<
+    import('./RootTelemetryService').RootTelemetryService
+  >({ id: 'core.rootTelemetry', scope: 'root' });
+
+  export const telemetry = createServiceRef<
+    import('./TelemetryService').TelemetryService
+  >({ id: 'core.telemetry' });
+
   /**
    * Scheduling of distributed background tasks.
    *
