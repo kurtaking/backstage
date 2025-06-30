@@ -111,6 +111,7 @@ import {
   catalogEntityPermissionResourceRef,
   CatalogPermissionRuleInput,
 } from '@backstage/plugin-catalog-node/alpha';
+import { TelemetryService } from '../telemetry';
 
 export type CatalogEnvironment = {
   logger: LoggerService;
@@ -123,6 +124,7 @@ export type CatalogEnvironment = {
   auth: AuthService;
   httpAuth: HttpAuthService;
   auditor?: AuditorService;
+  telemetry: TelemetryService;
 };
 
 /**
@@ -461,6 +463,7 @@ export class CatalogBuilder {
       auditor,
       auth,
       httpAuth,
+      telemetry,
     } = this.env;
 
     const disableRelationsCompatibility = config.getOptionalBoolean(
@@ -587,6 +590,7 @@ export class CatalogBuilder {
         this.onProcessingError?.(event);
       },
       eventBroker: this.eventBroker,
+      telemetry,
     });
 
     const locationAnalyzer =
