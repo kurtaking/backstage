@@ -9,6 +9,8 @@ description: Documentation for the Auditor service
 
 This document describes the Auditor Service, a core service designed to record and report on security-relevant events within an application. By default, this service utilizes the `rootLogger` core service for logging.
 
+For information about security observability, monitoring, and compliance reporting, see the [Security Observability documentation](../../../features/observability/auditor.md).
+
 ## Key Features
 
 - Provides a standardized way to capture security events.

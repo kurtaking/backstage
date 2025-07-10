@@ -157,14 +157,14 @@ export default {
             link:
               searchSidebar.length > 0
                 ? {
-                    type: 'generated-index',
-                    title: 'Search API',
-                    slug: '/category/search-api',
-                  }
+                  type: 'generated-index',
+                  title: 'Search API',
+                  slug: '/category/search-api',
+                }
                 : {
-                    type: 'doc',
-                    id: 'openapi/generated-docs/404',
-                  },
+                  type: 'doc',
+                  id: 'openapi/generated-docs/404',
+                },
             items: searchSidebar,
           },
           'features/search/architecture',
@@ -195,14 +195,14 @@ export default {
             link:
               catalogSidebar.length > 0
                 ? {
-                    type: 'generated-index',
-                    title: 'Catalog API',
-                    slug: '/category/catalog-api',
-                  }
+                  type: 'generated-index',
+                  title: 'Catalog API',
+                  slug: '/category/catalog-api',
+                }
                 : {
-                    type: 'doc',
-                    id: 'openapi/generated-docs/404',
-                  },
+                  type: 'doc',
+                  id: 'openapi/generated-docs/404',
+                },
             items: catalogSidebar,
           },
           'features/software-catalog/creating-the-catalog-graph',
@@ -251,6 +251,26 @@ export default {
           'features/techdocs/faqs',
         ],
       },
+      {
+        type: 'category',
+        label: 'Observability',
+        items: [
+          'features/observability/overview',
+          'features/observability/auditing',
+          'features/observability/metrics',
+          'features/observability/health-checks',
+          'features/observability/logging',
+          'features/observability/monitoring',
+          {
+            type: 'category',
+            label: 'Tutorials',
+            items: [
+              'features/observability/tutorials/setup-opentelemetry',
+              'features/observability/tutorials/setup-datadog-rum-events',
+            ],
+          },
+        ],
+      },
     ],
     Integrations: [
       'integrations/index',
@@ -294,11 +314,6 @@ export default {
           'integrations/bitbucketServer/locations',
           'integrations/bitbucketServer/discovery',
         ],
-      },
-      {
-        type: 'category',
-        label: 'Datadog',
-        items: ['integrations/datadog-rum/installation'],
       },
       {
         type: 'category',
@@ -389,7 +404,6 @@ export default {
         items: [
           'plugins/publish-private',
           'plugins/add-to-directory',
-          'plugins/observability',
         ],
       },
     ],
@@ -553,7 +567,6 @@ export default {
           'tutorials/switching-sqlite-postgres',
           'tutorials/using-backstage-proxy-within-plugin',
           'tutorials/enable-public-entry',
-          'tutorials/setup-opentelemetry',
           'accessibility/index',
         ],
       },

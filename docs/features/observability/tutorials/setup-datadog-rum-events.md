@@ -1,8 +1,7 @@
 ---
-id: installation
-title: Datadog RUM Installation
-sidebar_label: Installation
-description: Adding Datadog Real User Monitoring (RUM) to Your App
+id: setup-datadog-rum-events
+title: Setup Datadog RUM Events
+description: Tutorial to setup Datadog RUM Events in Backstage
 ---
 
 Datadog Real User Monitoring (RUM) allows you to visualize and analyze the
