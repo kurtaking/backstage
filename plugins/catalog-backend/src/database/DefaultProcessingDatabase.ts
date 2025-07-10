@@ -51,6 +51,7 @@ import { DateTime } from 'luxon';
 import { CATALOG_CONFLICTS_TOPIC } from '../constants';
 import { CatalogConflictEventPayload } from '../catalog/types';
 import { LoggerService } from '@backstage/backend-plugin-api';
+import { TelemetryService } from '../telemetry';
 
 // The number of items that are sent per batch to the database layer, when
 // doing .batchInsert calls to knex. This needs to be low enough to not cause
@@ -65,9 +66,10 @@ export class DefaultProcessingDatabase implements ProcessingDatabase {
       logger: LoggerService;
       refreshInterval: ProcessingIntervalFunction;
       eventBroker?: EventBroker | EventsService;
+      telemetry: TelemetryService;
     },
   ) {
-    initDatabaseMetrics(options.database);
+    initDatabaseMetrics(options.database, options.telemetry);
   }
 
   async updateProcessedEntity(
