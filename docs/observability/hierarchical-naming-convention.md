@@ -4,10 +4,10 @@
 
 ```markdown
 backstage.services.{service_name}.{metric_name}
-│ │ │ │
-│ │ │ └─ Specific metric (snake_case)
-│ │ └─ Root service name (logger, health, lifecycle, etc.)
-│ └─ Services namespace for backend-wide concerns
+│         │         │            │
+│         │         │            └─ Specific metric (snake_case)
+│         │         └─ Root service name (logger, health, lifecycle, etc.)
+│         └─ Services namespace for backend-wide concerns
 └─ Top-level Backstage namespace
 ```
 
@@ -15,10 +15,10 @@ backstage.services.{service_name}.{metric_name}
 
 ```markdown
 backstage.{plugin}.{component}.{metric_name}
-│ │ │ │
-│ │ │ └─ Specific metric (snake_case)
-│ │ └─ Component/feature within plugin
-│ └─ Plugin name (matches package structure)
+│         │        │           │
+│         │        │           └─ Specific metric (snake_case)
+│         │        └─ Component/feature within plugin
+│         └─ Plugin name (matches package structure)
 └─ Top-level Backstage namespace
 ```
 
@@ -26,10 +26,10 @@ backstage.{plugin}.{component}.{metric_name}
 
 ```markdown
 backstage.{plugin}.{service_name}.{metric_name}
-│ │ │ │
-│ │ │ └─ Specific metric (snake_case)
-│ │ └─ Service name (database, cache, scheduler, etc.)
-│ └─ Plugin using the service
+│         │        │             │
+│         │        │             └─ Specific metric (snake_case)
+│         │        └─ Service name (database, cache, scheduler, etc.)
+│         └─ Plugin using the service
 └─ Top-level Backstage namespace
 ```
 
