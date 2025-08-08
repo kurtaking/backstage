@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { actionsRegistryServiceFactory } from './entrypoints/actionsRegistry';
-export { actionsServiceFactory } from './entrypoints/actions';
-export { metricsServiceFactory } from './entrypoints/metrics';
-export { rootMetricsServiceFactory } from './entrypoints/rootMetrics';
+import { Attributes } from '@opentelemetry/api';
+import {
+  CreateMetricOptions,
+  GaugeMetric,
+} from '@backstage/backend-plugin-api/alpha';
 
-export * from './lib';
+export function createGaugeMetric(opts: CreateMetricOptions): GaugeMetric {
+  const { name, meter, metricOpts } = opts;
+  const gauge = meter.createGauge(name, metricOpts);
+
+  return {
+    record: (value: number, attributes?: Attributes) => {
+      gauge.record(value, attributes);
+    },
+  };
+}
