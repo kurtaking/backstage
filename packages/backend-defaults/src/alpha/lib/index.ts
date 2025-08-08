@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from './instruments';
-
 export {
   createMetricName,
   createMetricNamePrefixer,
   type MetricNameOptions,
 } from './metricNamePrefixer';
+
+export * from './instruments';

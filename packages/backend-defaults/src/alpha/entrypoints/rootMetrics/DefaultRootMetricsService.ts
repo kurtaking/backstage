@@ -13,48 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Meter, MeterProvider, metrics } from '@opentelemetry/api';
 import {
-  Attributes,
-  Meter,
-  MeterProvider,
-  MetricOptions,
-  metrics,
-  ObservableCallback,
-} from '@opentelemetry/api';
-import {
-  CounterMetric,
-  GaugeMetric,
-  HistogramMetric,
-  UpDownCounterMetric,
-  MetricsService,
   RootMetricsService,
+  MetricsService,
 } from '@backstage/backend-plugin-api/alpha';
 import { PluginMetricsService } from './PluginMetricsService';
 import { RootLoggerService } from '@backstage/backend-plugin-api';
-import {
-  createCounterMetric,
-  createGaugeMetric,
-  createHistogramMetric,
-  createObservableCounterMetric,
-  createObservableUpDownCounterMetric,
-  createObservableGaugeMetric,
-  createUpDownCounterMetric,
-  createMetricNamePrefixer,
-} from '../../lib';
+import { createMetricNamePrefixer } from '../../lib';
+import { BaseMetricsService } from './BaseMetricsService';
 
-export class DefaultRootMetricsService implements RootMetricsService {
+export class DefaultRootMetricsService
+  extends BaseMetricsService
+  implements RootMetricsService
+{
   private readonly rootNamespace: string = 'backstage';
   private readonly globalMeterProvider: MeterProvider;
   private readonly rootMeter: Meter;
   private readonly rootLogger?: RootLoggerService;
-  private readonly prefixMetricName: (name: string) => string;
+  private readonly _prefixMetricName: (name: string) => string;
 
   private constructor({ rootLogger }: { rootLogger?: RootLoggerService }) {
+    super();
     this.rootLogger = rootLogger;
 
     this.globalMeterProvider = metrics.getMeterProvider();
     this.rootMeter = this.globalMeterProvider.getMeter(this.rootNamespace);
-    this.prefixMetricName = createMetricNamePrefixer({
+    this._prefixMetricName = createMetricNamePrefixer({
       rootNamespace: this.rootNamespace,
       scope: 'framework',
     });
@@ -77,78 +62,19 @@ export class DefaultRootMetricsService implements RootMetricsService {
     return new PluginMetricsService({
       pluginId,
       namespace,
-      meter: this.globalMeterProvider.getMeter(namespace),
+      meter: this.getPluginMeter(namespace),
     });
   }
 
-  createCounter(name: string, options?: MetricOptions): CounterMetric {
-    return createCounterMetric({
-      name: this.prefixMetricName(name),
-      meter: this.rootMeter,
-      metricOpts: options,
-    });
+  private getPluginMeter(namespace: string): Meter {
+    return this.globalMeterProvider.getMeter(namespace);
   }
 
-  createUpDownCounter(name: string, opts?: MetricOptions): UpDownCounterMetric {
-    return createUpDownCounterMetric({
-      name: this.prefixMetricName(name),
-      meter: this.rootMeter,
-      metricOpts: opts,
-    });
+  protected get meter(): Meter {
+    return this.rootMeter;
   }
 
-  createHistogram(name: string, opts?: MetricOptions): HistogramMetric {
-    return createHistogramMetric({
-      name: this.prefixMetricName(name),
-      meter: this.rootMeter,
-      metricOpts: opts,
-    });
-  }
-
-  createGauge(name: string, opts?: MetricOptions): GaugeMetric {
-    return createGaugeMetric({
-      name: this.prefixMetricName(name),
-      meter: this.rootMeter,
-      metricOpts: opts,
-    });
-  }
-
-  createObservableCounter(
-    name: string,
-    observer: ObservableCallback<Attributes>,
-    opts?: MetricOptions,
-  ): void {
-    createObservableCounterMetric({
-      name: this.prefixMetricName(name),
-      meter: this.rootMeter,
-      observer,
-      metricOpts: opts,
-    });
-  }
-
-  createObservableUpDownCounter(
-    name: string,
-    observer: ObservableCallback<Attributes>,
-    opts?: MetricOptions,
-  ): void {
-    createObservableUpDownCounterMetric({
-      name: this.prefixMetricName(name),
-      meter: this.rootMeter,
-      observer,
-      metricOpts: opts,
-    });
-  }
-
-  createObservableGauge(
-    name: string,
-    observer: ObservableCallback<Attributes>,
-    opts?: MetricOptions,
-  ): void {
-    createObservableGaugeMetric({
-      name: this.prefixMetricName(name),
-      meter: this.rootMeter,
-      observer,
-      metricOpts: opts,
-    });
+  protected get prefixMetricName(): (name: string) => string {
+    return this._prefixMetricName;
   }
 }
