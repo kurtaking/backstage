@@ -15,15 +15,36 @@
  */
 import {
   Attributes,
+  Counter,
+  Gauge,
+  Histogram,
   MetricOptions,
   ObservableCallback,
+  ObservableCounter,
+  ObservableGauge,
+  ObservableUpDownCounter,
+  UpDownCounter,
 } from '@opentelemetry/api';
-import {
-  CounterMetric,
-  UpDownCounterMetric,
-  HistogramMetric,
-  GaugeMetric,
-} from '.';
+
+/**
+ * @alpha
+ */
+export interface ObservableMetric {
+  /**
+   * The name of the instrument.
+   */
+  name: string;
+
+  /**
+   * The callback to be called when the instrument is observed.
+   */
+  handler: ObservableCallback<Attributes>;
+
+  /**
+   * The options for the instrument.
+   */
+  opts: MetricOptions;
+}
 
 /**
  * A service that provides a metrics facility
@@ -31,29 +52,17 @@ import {
  * @alpha
  */
 export interface MetricsService {
-  createCounter(name: string, opts?: MetricOptions): CounterMetric;
+  createCounter(name: string, opts?: MetricOptions): Counter;
 
-  createUpDownCounter(name: string, opts?: MetricOptions): UpDownCounterMetric;
+  createUpDownCounter(name: string, opts?: MetricOptions): UpDownCounter;
 
-  createHistogram(name: string, opts?: MetricOptions): HistogramMetric;
+  createHistogram(name: string, opts?: MetricOptions): Histogram;
 
-  createGauge(name: string, opts?: MetricOptions): GaugeMetric;
+  createGauge(name: string, opts?: MetricOptions): Gauge;
 
-  createObservableCounter(
-    name: string,
-    observer: ObservableCallback<Attributes>,
-    opts?: MetricOptions,
-  ): void;
+  createObservableCounter(metric: ObservableMetric): ObservableCounter;
 
-  createObservableUpDownCounter(
-    name: string,
-    observer: ObservableCallback<Attributes>,
-    opts?: MetricOptions,
-  ): void;
+  createObservableUpDownCounter(metric: ObservableMetric): ObservableUpDownCounter;
 
-  createObservableGauge(
-    name: string,
-    observer: ObservableCallback<Attributes>,
-    opts?: MetricOptions,
-  ): void;
+  createObservableGauge(metric: ObservableMetric): ObservableGauge;
 }

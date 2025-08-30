@@ -15,37 +15,31 @@
  */
 import { MetricsService } from '@backstage/backend-plugin-api/alpha';
 import { Meter } from '@opentelemetry/api';
-import { createMetricNamePrefixer } from '../../lib';
 import { BaseMetricsService } from './BaseMetricsService';
 
 export type PluginMetricsServiceOptions = {
   pluginId: string;
-  namespace: string;
   meter: Meter;
+  namespace: string;
 };
 
 export class PluginMetricsService
   extends BaseMetricsService
-  implements MetricsService
-{
+  implements MetricsService {
   private readonly _meter: Meter;
-  private readonly _prefixMetricName: (name: string) => string;
+  private readonly _namespace: string;
 
-  constructor(opts: PluginMetricsServiceOptions) {
+  constructor (opts: PluginMetricsServiceOptions) {
     super();
     this._meter = opts.meter;
-    this._prefixMetricName = createMetricNamePrefixer({
-      rootNamespace: opts.namespace,
-      id: opts.pluginId,
-      scope: 'plugin',
-    });
+    this._namespace = opts.namespace;
   }
 
   protected get meter(): Meter {
     return this._meter;
   }
 
-  protected get prefixMetricName(): (name: string) => string {
-    return this._prefixMetricName;
+  protected get prefixMetricName(): string {
+    return this._namespace;
   }
 }

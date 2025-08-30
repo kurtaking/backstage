@@ -20,29 +20,22 @@ import {
 } from '@backstage/backend-plugin-api/alpha';
 import { PluginMetricsService } from './PluginMetricsService';
 import { RootLoggerService } from '@backstage/backend-plugin-api';
-import { createMetricNamePrefixer } from '../../lib';
 import { BaseMetricsService } from './BaseMetricsService';
 
 export class DefaultRootMetricsService
   extends BaseMetricsService
-  implements RootMetricsService
-{
+  implements RootMetricsService {
   private readonly rootNamespace: string = 'backstage';
   private readonly globalMeterProvider: MeterProvider;
   private readonly rootMeter: Meter;
   private readonly rootLogger?: RootLoggerService;
-  private readonly _prefixMetricName: (name: string) => string;
 
-  private constructor({ rootLogger }: { rootLogger?: RootLoggerService }) {
+  private constructor ({ rootLogger }: { rootLogger?: RootLoggerService }) {
     super();
     this.rootLogger = rootLogger;
 
     this.globalMeterProvider = metrics.getMeterProvider();
     this.rootMeter = this.globalMeterProvider.getMeter(this.rootNamespace);
-    this._prefixMetricName = createMetricNamePrefixer({
-      rootNamespace: this.rootNamespace,
-      scope: 'framework',
-    });
   }
 
   static forRoot(opts?: {
@@ -50,6 +43,20 @@ export class DefaultRootMetricsService
   }): RootMetricsService {
     return new DefaultRootMetricsService({
       rootLogger: opts?.rootLogger,
+    });
+  }
+
+  forService(serviceId: string, scope: 'core' | 'plugin'): MetricsService {
+    this.rootLogger?.info('Creating core-scoped metrics service', {
+      serviceId,
+    });
+
+    const namespace = `${this.rootNamespace}.${scope}.${serviceId}`;
+
+    return new PluginMetricsService({
+      pluginId: serviceId,
+      meter: this.getPluginMeter(namespace),
+      namespace,
     });
   }
 
@@ -61,8 +68,8 @@ export class DefaultRootMetricsService
 
     return new PluginMetricsService({
       pluginId,
-      namespace,
       meter: this.getPluginMeter(namespace),
+      namespace,
     });
   }
 
@@ -74,7 +81,7 @@ export class DefaultRootMetricsService
     return this.rootMeter;
   }
 
-  protected get prefixMetricName(): (name: string) => string {
-    return this._prefixMetricName;
+  protected get prefixMetricName(): string {
+    return this.rootNamespace;
   }
 }

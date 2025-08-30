@@ -22,26 +22,57 @@ import { BaseMetricsService } from './BaseMetricsService';
 
 export class NoopRootMetricsService
   extends BaseMetricsService
-  implements RootMetricsService
-{
+  implements RootMetricsService {
   private readonly _meter: Meter;
-  private readonly _prefixMetricName: (name: string) => string;
 
-  constructor() {
+  constructor () {
     super();
     this._meter = null as unknown as Meter;
-    this._prefixMetricName = () => 'noop';
+  }
+
+  forService(_serviceId: string, _scope: 'core' | 'plugin'): MetricsService {
+    return this.createNoops();
   }
 
   forPlugin(_pluginId: string): MetricsService {
-    return {} as MetricsService;
+    return this.createNoops();
+  }
+
+  private createNoops(): MetricsService {
+    return {
+      createCounter: () => ({
+        add: () => { },
+      }),
+      createUpDownCounter: () => ({
+        add: () => { },
+        subtract: () => { },
+      }),
+      createHistogram: () => ({
+        record: () => { },
+      }),
+      createGauge: () => ({
+        record: () => { },
+      }),
+      createObservableCounter: () => ({
+        addCallback: () => { },
+        removeCallback: () => { },
+      }),
+      createObservableUpDownCounter: () => ({
+        addCallback: () => { },
+        removeCallback: () => { },
+      }),
+      createObservableGauge: () => ({
+        addCallback: () => { },
+        removeCallback: () => { },
+      }),
+    };
   }
 
   protected get meter(): Meter {
     return this._meter;
   }
 
-  protected get prefixMetricName(): (name: string) => string {
-    return this._prefixMetricName;
+  protected get prefixMetricName(): string {
+    return 'noop';
   }
 }

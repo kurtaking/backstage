@@ -24,15 +24,16 @@ import {
 } from '@backstage/backend-plugin-api';
 
 /**
- * Service for collecting metrics for plugins.
+ * Service factory for collecting plugin-scoped metrics.
+ * This is the default metrics service for plugins.
  *
  * @alpha
  */
 export const metricsServiceFactory = createServiceFactory({
   service: metricsServiceRef,
   deps: {
-    rootConfig: coreServices.rootConfig,
     rootMetrics: rootMetricsServiceRef,
+    rootConfig: coreServices.rootConfig,
     pluginMetadata: coreServices.pluginMetadata,
   },
   factory: ({ rootMetrics, pluginMetadata }) => {

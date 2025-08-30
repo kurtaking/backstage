@@ -14,103 +14,66 @@
  * limitations under the License.
  */
 import {
-  Attributes,
+  Counter,
+  Gauge,
+  Histogram,
   Meter,
   MetricOptions,
-  ObservableCallback,
+  ObservableCounter,
+  ObservableGauge,
+  ObservableUpDownCounter,
+  UpDownCounter,
 } from '@opentelemetry/api';
-import {
-  CounterMetric,
-  GaugeMetric,
-  HistogramMetric,
-  UpDownCounterMetric,
-  MetricsService,
-} from '@backstage/backend-plugin-api/alpha';
-import {
-  createCounterMetric,
-  createGaugeMetric,
-  createHistogramMetric,
-  createUpDownCounterMetric,
-  createObservableCounterMetric,
-  createObservableUpDownCounterMetric,
-  createObservableGaugeMetric,
-} from '../../lib';
+
+import { MetricsService, ObservableMetric } from '@backstage/backend-plugin-api/alpha';
 
 export abstract class BaseMetricsService implements MetricsService {
   protected abstract get meter(): Meter;
-  protected abstract get prefixMetricName(): (name: string) => string;
+  protected abstract get prefixMetricName(): string;
 
-  createCounter(name: string, options?: MetricOptions): CounterMetric {
-    return createCounterMetric({
-      name: this.prefixMetricName(name),
-      meter: this.meter,
-      metricOpts: options,
-    });
+  createCounter(name: string, options?: MetricOptions): Counter {
+    const prefixedName = `${this.prefixMetricName}.${name}`;
+    return this.meter.createCounter(prefixedName, options);
   }
 
   createUpDownCounter(
     name: string,
     options?: MetricOptions,
-  ): UpDownCounterMetric {
-    return createUpDownCounterMetric({
-      name: this.prefixMetricName(name),
-      meter: this.meter,
-      metricOpts: options,
-    });
+  ): UpDownCounter {
+    const prefixedName = `${this.prefixMetricName}.${name}`;
+    return this.meter.createUpDownCounter(prefixedName, options);
+  }
+  createHistogram(name: string, options?: MetricOptions): Histogram {
+    const prefixedName = `${this.prefixMetricName}.${name}`;
+    return this.meter.createHistogram(prefixedName, options);
   }
 
-  createHistogram(name: string, options?: MetricOptions): HistogramMetric {
-    return createHistogramMetric({
-      name: this.prefixMetricName(name),
-      meter: this.meter,
-      metricOpts: options,
-    });
+  createGauge(name: string, options?: MetricOptions): Gauge {
+    const prefixedName = `${this.prefixMetricName}.${name}`;
+    return this.meter.createGauge(prefixedName, options);
   }
 
-  createGauge(name: string, options?: MetricOptions): GaugeMetric {
-    return createGaugeMetric({
-      name: this.prefixMetricName(name),
-      meter: this.meter,
-      metricOpts: options,
-    });
+  createObservableCounter(metric: ObservableMetric): ObservableCounter {
+    const prefixedName = `${this.prefixMetricName}.${metric.name}`;
+    const observableCounter = this.meter.createObservableCounter(prefixedName, metric.opts);
+
+    observableCounter.addCallback(metric.handler);
+    return observableCounter;
   }
 
-  createObservableCounter(
-    name: string,
-    observer: ObservableCallback<Attributes>,
-    options?: MetricOptions,
-  ): void {
-    createObservableCounterMetric({
-      name: this.prefixMetricName(name),
-      meter: this.meter,
-      observer,
-      metricOpts: options,
-    });
+  createObservableUpDownCounter(metric: ObservableMetric): ObservableUpDownCounter {
+    const prefixedName = `${this.prefixMetricName}.${metric.name}`;
+    const observableUpDownCounter = this.meter.createObservableUpDownCounter(prefixedName, metric.opts);
+
+    observableUpDownCounter.addCallback(metric.handler);
+    return observableUpDownCounter;
   }
 
-  createObservableUpDownCounter(
-    name: string,
-    observer: ObservableCallback<Attributes>,
-    options?: MetricOptions,
-  ): void {
-    createObservableUpDownCounterMetric({
-      name: this.prefixMetricName(name),
-      meter: this.meter,
-      observer,
-      metricOpts: options,
-    });
-  }
+  createObservableGauge(metric: ObservableMetric): ObservableGauge {
+    const prefixedName = `${this.prefixMetricName}.${metric.name}`;
+    const observableGauge = this.meter.createObservableGauge(prefixedName, metric.opts);
 
-  createObservableGauge(
-    name: string,
-    observer: ObservableCallback<Attributes>,
-    options?: MetricOptions,
-  ): void {
-    createObservableGaugeMetric({
-      name: this.prefixMetricName(name),
-      meter: this.meter,
-      observer,
-      metricOpts: options,
-    });
+    observableGauge.addCallback(metric.handler);
+    return observableGauge;
   }
 }

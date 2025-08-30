@@ -15,6 +15,7 @@
  */
 
 import { RootHttpRouterService } from '@backstage/backend-plugin-api';
+import { RootMetricsService } from '@backstage/backend-plugin-api/alpha';
 import { Handler, Router } from 'express';
 import trimEnd from 'lodash/trimEnd';
 
@@ -33,6 +34,7 @@ export interface DefaultRootHttpRouterOptions {
    * not given. Disables index path behavior if false is given.
    */
   indexPath?: string | false;
+  metrics: RootMetricsService
 }
 
 /**
@@ -43,6 +45,7 @@ export interface DefaultRootHttpRouterOptions {
  */
 export class DefaultRootHttpRouter implements RootHttpRouterService {
   #indexPath?: string;
+  #metrics?: RootMetricsService;
 
   #router = Router();
   #namedRoutes = Router();
@@ -51,6 +54,7 @@ export class DefaultRootHttpRouter implements RootHttpRouterService {
 
   static create(options?: DefaultRootHttpRouterOptions) {
     let indexPath;
+    const metrics = options?.metrics;
     if (options?.indexPath === false) {
       indexPath = undefined;
     } else if (options?.indexPath === undefined) {
@@ -60,10 +64,11 @@ export class DefaultRootHttpRouter implements RootHttpRouterService {
     } else {
       indexPath = options.indexPath;
     }
-    return new DefaultRootHttpRouter(indexPath);
+    return new DefaultRootHttpRouter(indexPath, metrics);
   }
 
-  private constructor(indexPath?: string) {
+  private constructor (indexPath?: string, metrics?: RootMetricsService) {
+    this.#metrics = metrics;
     this.#indexPath = indexPath;
     this.#router.use(this.#namedRoutes);
 
@@ -96,6 +101,16 @@ export class DefaultRootHttpRouter implements RootHttpRouterService {
   }
 
   handler(): Handler {
+    const c = this.#metrics?.forService('http', 'core').createCounter('toys.count', {
+      description: 'The number of requests for toys to the root HTTP router',
+    });
+
+    if (c) {
+      c.add(1, {
+        path: this.#indexPath,
+      });
+    }
+
     return this.#router;
   }
 

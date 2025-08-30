@@ -32,6 +32,7 @@ import { DefaultRootHttpRouter } from './DefaultRootHttpRouter';
 import { createHealthRouter } from './createHealthRouter';
 import { durationToMilliseconds } from '@backstage/types';
 import { readDurationFromConfig } from '@backstage/config';
+import { rootMetricsServiceRef } from '@backstage/backend-plugin-api/alpha';
 
 /**
  * @public
@@ -81,15 +82,16 @@ const rootHttpRouterServiceFactoryWithOptions = (
       rootLogger: coreServices.rootLogger,
       lifecycle: coreServices.rootLifecycle,
       health: coreServices.rootHealth,
+      metrics: rootMetricsServiceRef,
     },
-    async factory({ config, rootLogger, lifecycle, health }) {
+    async factory({ config, rootLogger, lifecycle, health, metrics }) {
       const { indexPath, configure = defaultConfigure } = options ?? {};
       const logger = rootLogger.child({ service: 'rootHttpRouter' });
       const app = express();
 
       const trustProxy = config.getOptional('backend.trustProxy');
 
-      const router = DefaultRootHttpRouter.create({ indexPath });
+      const router = DefaultRootHttpRouter.create({ indexPath, metrics });
       const middleware = MiddlewareFactory.create({ config, logger });
       const routes = router.handler();
 

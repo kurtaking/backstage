@@ -33,7 +33,7 @@ const prometheus = new PrometheusExporter();
 const sdk = new NodeSDK({
   // traceExporter: ...,
   metricReader: prometheus,
-  instrumentations: [getNodeAutoInstrumentations()],
+  // instrumentations: [getNodeAutoInstrumentations()],
 });
 
 sdk.start();
