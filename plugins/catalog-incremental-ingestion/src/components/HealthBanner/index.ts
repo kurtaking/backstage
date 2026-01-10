@@ -14,19 +14,4 @@
  * limitations under the License.
  */
 
-import { Content, Header, Page } from '@backstage/core-components';
-import { HealthBanner } from './HealthBanner';
-
-export const IncrementalIngestion = () => {
-  return (
-    <Page themeId="tool">
-      <Header
-        title="Incremental Ingestion"
-        subtitle="Manage catalog incremental entity providers"
-      />
-      <Content>
-        <HealthBanner />
-      </Content>
-    </Page>
-  );
-};
+export { HealthBanner } from './HealthBanner';

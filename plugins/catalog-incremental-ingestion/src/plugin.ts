@@ -14,14 +14,28 @@
  * limitations under the License.
  */
 import {
+  createApiFactory,
   createPlugin,
   createRoutableExtension,
 } from '@backstage/core-plugin-api';
+import { discoveryApiRef, fetchApiRef } from '@backstage/frontend-plugin-api';
 
 import { rootRouteRef } from './routes';
+import { incrementalIngestionApiRef, IncrementalIngestionClient } from './api';
 
 export const catalogIncrementalIngestionPlugin = createPlugin({
   id: 'catalog-incremental-ingestion',
+  apis: [
+    createApiFactory({
+      api: incrementalIngestionApiRef,
+      deps: {
+        discoveryApi: discoveryApiRef,
+        fetchApi: fetchApiRef,
+      },
+      factory: ({ discoveryApi, fetchApi }) =>
+        new IncrementalIngestionClient({ discoveryApi, fetchApi }),
+    }),
+  ],
   routes: {
     root: rootRouteRef,
   },
