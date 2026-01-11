@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export { ProvidersTable } from './ProvidersTable';
+export { IncrementalEntityProvidersTable as ProvidersTable } from './ProvidersTable';

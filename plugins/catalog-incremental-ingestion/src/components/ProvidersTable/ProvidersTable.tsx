@@ -23,11 +23,13 @@ import {
   StatusError,
   Table,
   TableColumn,
+  StatusRunning,
 } from '@backstage/core-components';
 import { useApi } from '@backstage/frontend-plugin-api';
 import useAsync from 'react-use/esm/useAsync';
 import Typography from '@material-ui/core/Typography';
 import { incrementalIngestionApiRef } from '../../api';
+import { Box } from '@material-ui/core';
 
 interface ProviderRow {
   name: string;
@@ -36,7 +38,7 @@ interface ProviderRow {
   lastError?: string;
 }
 
-interface ProvidersTableProps {
+interface IncrementalEntityProvidersTableProps {
   providers: string[];
 }
 
@@ -45,7 +47,9 @@ interface ProvidersTableProps {
  *
  * @public
  */
-export const ProvidersTable = ({ providers }: ProvidersTableProps) => {
+export const IncrementalEntityProvidersTable = ({
+  providers,
+}: IncrementalEntityProvidersTableProps) => {
   const api = useApi(incrementalIngestionApiRef);
 
   const {
@@ -119,12 +123,14 @@ export const ProvidersTable = ({ providers }: ProvidersTableProps) => {
       normalizedStatus.includes('interstitial') ||
       normalizedStatus.includes('bursting')
     ) {
+      return <StatusRunning />;
+    }
+
+    if (normalizedStatus.includes('backing off')) {
       return <StatusWarning />;
     }
-    if (
-      normalizedStatus.includes('error') ||
-      normalizedStatus.includes('backing off')
-    ) {
+
+    if (normalizedStatus.includes('error')) {
       return <StatusError />;
     }
     return null;
@@ -148,12 +154,12 @@ export const ProvidersTable = ({ providers }: ProvidersTableProps) => {
       title: 'Status',
       field: 'status',
       render: row => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Box display="flex" alignItems="center">
           {getStatusIcon(row.status)}
           <Typography variant="body2" component="span">
             {row.status}
           </Typography>
-        </div>
+        </Box>
       ),
     },
     {
@@ -185,8 +191,8 @@ export const ProvidersTable = ({ providers }: ProvidersTableProps) => {
 
   return (
     <Table
-      title="Incremental Providers"
-      options={{ search: false, paging: true, pageSize: 5 }}
+      title="Incremental Entity Providers"
+      options={{ search: false, paging: false }}
       data={providersWithStatus}
       columns={columns}
     />
