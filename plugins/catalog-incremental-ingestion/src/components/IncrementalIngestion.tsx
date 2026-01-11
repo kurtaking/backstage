@@ -14,18 +14,57 @@
  * limitations under the License.
  */
 
-import { Content, Header, Page } from '@backstage/core-components';
+import {
+  Content,
+  EmptyState,
+  ErrorPanel,
+  Header,
+  Page,
+  Progress,
+} from '@backstage/core-components';
 import { HealthBanner } from './HealthBanner';
+import { ProvidersTable } from './ProvidersTable';
+import { incrementalIngestionApiRef } from '../api';
+import { useApi } from '@backstage/frontend-plugin-api';
+import useAsync from 'react-use/esm/useAsync';
 
 export const IncrementalIngestion = () => {
+  const api = useApi(incrementalIngestionApiRef);
+
+  const {
+    value: providers,
+    loading,
+    error,
+  } = useAsync(async () => {
+    const providersResponse = await api.getProviders();
+    return providersResponse.providers;
+  }, [api]);
+
   return (
     <Page themeId="tool">
       <Header
         title="Incremental Ingestion"
         subtitle="Manage catalog incremental entity providers"
       />
+
       <Content>
-        <HealthBanner />
+        {loading && <Progress />}
+        {error && <ErrorPanel error={error} />}
+
+        {!loading && !error && providers && providers.length > 0 && (
+          <>
+            <HealthBanner />
+            <ProvidersTable providers={providers} />
+          </>
+        )}
+
+        {!loading && !error && (!providers || providers.length === 0) && (
+          <EmptyState
+            missing="data"
+            title="No incremental providers found"
+            description="There are no incremental entity providers configured."
+          />
+        )}
       </Content>
     </Page>
   );

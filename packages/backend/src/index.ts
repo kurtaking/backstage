@@ -20,6 +20,7 @@ import {
   coreServices,
   createBackendFeatureLoader,
 } from '@backstage/backend-plugin-api';
+import { testIncrementalProvider } from './extensions/testIncrementalProvider';
 
 const backend = createBackend();
 
@@ -53,6 +54,7 @@ backend.add(
   import('@backstage/plugin-catalog-backend-module-scaffolder-entity-model'),
 );
 backend.add(import('@backstage/plugin-catalog-backend'));
+backend.add(testIncrementalProvider);
 backend.add(import('@backstage/plugin-events-backend'));
 backend.add(import('@backstage/plugin-devtools-backend'));
 backend.add(import('@backstage/plugin-kubernetes-backend'));

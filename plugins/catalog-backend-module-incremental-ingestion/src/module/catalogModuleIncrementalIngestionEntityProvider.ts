@@ -26,6 +26,7 @@ import {
   IncrementalEntityProvider,
   IncrementalEntityProviderOptions,
 } from '../types';
+import { applyDatabaseMigrations } from '../database/migrations';
 
 /**
  * @public
@@ -119,6 +120,9 @@ export const catalogModuleIncrementalIngestionEntityProvider =
           events,
         }) {
           const client = await database.getClient();
+
+          // Run migrations early so the admin router can work even without providers
+          await applyDatabaseMigrations(client);
 
           const providers = new WrapperProviders({
             config,
