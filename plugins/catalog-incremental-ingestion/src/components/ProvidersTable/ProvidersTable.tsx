@@ -24,16 +24,25 @@ import {
   Table,
   TableColumn,
   StatusRunning,
+  CodeSnippet,
 } from '@backstage/core-components';
 import { useApi, alertApiRef } from '@backstage/frontend-plugin-api';
 import useAsync from 'react-use/esm/useAsync';
 import Typography from '@material-ui/core/Typography';
 import { incrementalIngestionApiRef } from '../../api';
-import { Box, IconButton, Tooltip } from '@material-ui/core';
+import {
+  Box,
+  IconButton,
+  Tooltip,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+} from '@material-ui/core';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import StopIcon from '@material-ui/icons/Stop';
-import { useState, useCallback } from 'react';
+import { Fragment, useState, useCallback } from 'react';
 
 interface ProviderRow {
   name: string;
@@ -42,9 +51,27 @@ interface ProviderRow {
   lastError?: string;
 }
 
+interface MarkRecord {
+  id: string;
+  sequence: number;
+  ingestion_id: string;
+  cursor: unknown;
+  created_at: string;
+}
+
 interface IncrementalEntityProvidersTableProps {
   providers: string[];
 }
+
+const formatDate = (dateString?: string): string => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  } catch {
+    return dateString;
+  }
+};
 
 /**
  * Component that displays a table of incremental ingestion providers and their status.
@@ -203,16 +230,6 @@ export const IncrementalEntityProvidersTable = ({
     );
   }
 
-  const formatDate = (dateString?: string): string => {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString();
-    } catch {
-      return dateString;
-    }
-  };
-
   const getStatusIcon = (status: string) => {
     const normalizedStatus = status.toLowerCase();
     if (
@@ -337,12 +354,136 @@ export const IncrementalEntityProvidersTable = ({
     },
   ];
 
+  const MarksDetailPanel = ({ rowData }: { rowData: ProviderRow }) => {
+    const marksApi = useApi(incrementalIngestionApiRef);
+
+    const {
+      value: marksData,
+      loading: marksLoading,
+      error: marksError,
+    } = useAsync(async () => {
+      try {
+        const response = await marksApi.getProviderMarks(rowData.name);
+        if (response.success && response.records) {
+          return response.records as MarkRecord[];
+        }
+        if (response.message) {
+          return [];
+        }
+        return [];
+      } catch (err) {
+        throw err;
+      }
+    }, [marksApi, rowData.name]);
+
+    if (marksLoading) {
+      return (
+        <Box p={2}>
+          <Progress />
+        </Box>
+      );
+    }
+
+    if (marksError) {
+      return (
+        <Box p={2}>
+          <ErrorPanel error={marksError} />
+        </Box>
+      );
+    }
+
+    if (!marksData || marksData.length === 0) {
+      return (
+        <Box p={1}>
+          <Typography variant="body2" color="textSecondary">
+            No ingestion marks found for this cycle.
+          </Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <Box p={1}>
+        <Typography variant="subtitle2" style={{ marginBottom: 8 }}>
+          Ingestion Marks ({marksData.length})
+        </Typography>
+        <List dense disablePadding>
+          {marksData.map((mark, index) => {
+            let cursorString: string | null = null;
+            if (mark.cursor) {
+              cursorString =
+                typeof mark.cursor === 'string'
+                  ? mark.cursor
+                  : JSON.stringify(mark.cursor, null, 2);
+            }
+
+            return (
+              <Fragment key={mark.id}>
+                <ListItem dense disableGutters>
+                  <ListItemText
+                    primary={
+                      <Box display="flex" alignItems="center">
+                        <Typography
+                          variant="caption"
+                          style={{ fontWeight: 'bold', minWidth: '60px' }}
+                        >
+                          #{mark.sequence}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          style={{ paddingLeft: '8px' }}
+                        >
+                          {formatDate(mark.created_at)}
+                        </Typography>
+                      </Box>
+                    }
+                    secondary={
+                      cursorString ? (
+                        <Box mt={0.5} maxWidth="100%">
+                          <CodeSnippet
+                            text={cursorString}
+                            language="json"
+                            showCopyCodeButton
+                            customStyle={{
+                              fontSize: '0.75rem',
+                              maxHeight: '150px',
+                              overflow: 'auto',
+                            }}
+                          />
+                        </Box>
+                      ) : (
+                        <Typography variant="caption" color="textSecondary">
+                          No cursor
+                        </Typography>
+                      )
+                    }
+                    primaryTypographyProps={{
+                      component: 'div',
+                    }}
+                    secondaryTypographyProps={{
+                      component: 'div',
+                    }}
+                  />
+                </ListItem>
+                {index < marksData.length - 1 && <Divider component="li" />}
+              </Fragment>
+            );
+          })}
+        </List>
+      </Box>
+    );
+  };
+
   return (
-    <Table
-      title="Incremental Entity Providers"
-      options={{ search: false, paging: false }}
-      data={providersWithStatus}
-      columns={columns}
-    />
+    <>
+      <Table
+        title="Incremental Entity Providers"
+        options={{ search: false, paging: false }}
+        data={providersWithStatus}
+        columns={columns}
+        detailPanel={({ rowData }) => <MarksDetailPanel rowData={rowData} />}
+      />
+    </>
   );
 };
