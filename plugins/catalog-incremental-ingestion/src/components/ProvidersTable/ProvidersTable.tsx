@@ -25,11 +25,15 @@ import {
   TableColumn,
   StatusRunning,
 } from '@backstage/core-components';
-import { useApi } from '@backstage/frontend-plugin-api';
+import { useApi, alertApiRef } from '@backstage/frontend-plugin-api';
 import useAsync from 'react-use/esm/useAsync';
 import Typography from '@material-ui/core/Typography';
 import { incrementalIngestionApiRef } from '../../api';
-import { Box } from '@material-ui/core';
+import { Box, IconButton, Tooltip } from '@material-ui/core';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import StopIcon from '@material-ui/icons/Stop';
+import { useState, useCallback } from 'react';
 
 interface ProviderRow {
   name: string;
@@ -51,6 +55,15 @@ export const IncrementalEntityProvidersTable = ({
   providers,
 }: IncrementalEntityProvidersTableProps) => {
   const api = useApi(incrementalIngestionApiRef);
+  const alertApi = useApi(alertApiRef);
+  const [triggeringProvider, setTriggeringProvider] = useState<string | null>(
+    null,
+  );
+  const [startingProvider, setStartingProvider] = useState<string | null>(null);
+  const [cancelingProvider, setCancelingProvider] = useState<string | null>(
+    null,
+  );
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const {
     value: providersWithStatus,
@@ -81,7 +94,96 @@ export const IncrementalEntityProvidersTable = ({
     });
 
     return Promise.all(statusPromises);
-  }, [api, providers]);
+  }, [api, providers, refreshKey]);
+
+  const handleTrigger = useCallback(
+    async (providerName: string) => {
+      setTriggeringProvider(providerName);
+      try {
+        const response = await api.triggerProvider(providerName);
+        alertApi.post({
+          message: response.message || `Successfully triggered ${providerName}`,
+          severity: 'success',
+          display: 'transient',
+        });
+        // Refresh the data after a short delay to see updated status
+        setTimeout(() => {
+          setRefreshKey(prev => prev + 1);
+        }, 1000);
+      } catch (err) {
+        alertApi.post({
+          message: `Failed to trigger ${providerName}: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+          severity: 'error',
+          display: 'transient',
+        });
+      } finally {
+        setTriggeringProvider(null);
+      }
+    },
+    [api, alertApi],
+  );
+
+  const handleStart = useCallback(
+    async (providerName: string) => {
+      setStartingProvider(providerName);
+      try {
+        const response = await api.startProvider(providerName);
+        alertApi.post({
+          message: response.message || `Successfully started ${providerName}`,
+          severity: 'success',
+          display: 'transient',
+        });
+        // Refresh the data after a short delay to see updated status
+        setTimeout(() => {
+          setRefreshKey(prev => prev + 1);
+        }, 1000);
+      } catch (err) {
+        alertApi.post({
+          message: `Failed to start ${providerName}: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+          severity: 'error',
+          display: 'transient',
+        });
+      } finally {
+        setStartingProvider(null);
+      }
+    },
+    [api, alertApi],
+  );
+
+  const handleCancel = useCallback(
+    async (providerName: string) => {
+      setCancelingProvider(providerName);
+      try {
+        const response = await api.cancelProvider(providerName);
+        alertApi.post({
+          message:
+            response.message ||
+            `Successfully canceled ${providerName}. Will restart in 24 hours.`,
+          severity: 'success',
+          display: 'transient',
+        });
+        // Refresh the data after a short delay to see updated status
+        setTimeout(() => {
+          setRefreshKey(prev => prev + 1);
+        }, 1000);
+      } catch (err) {
+        alertApi.post({
+          message: `Failed to cancel ${providerName}: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+          severity: 'error',
+          display: 'transient',
+        });
+      } finally {
+        setCancelingProvider(null);
+      }
+    },
+    [api, alertApi],
+  );
 
   if (loading) {
     return <Progress />;
@@ -186,6 +288,52 @@ export const IncrementalEntityProvidersTable = ({
             —
           </Typography>
         ),
+    },
+    {
+      title: 'Actions',
+      field: 'actions',
+      sorting: false,
+      render: row => {
+        const isActionInProgress =
+          triggeringProvider === row.name ||
+          startingProvider === row.name ||
+          cancelingProvider === row.name;
+
+        return (
+          <Box display="flex" alignItems="center">
+            <Tooltip title="Trigger next action">
+              <IconButton
+                aria-label={`Trigger ${row.name}`}
+                disabled={isActionInProgress}
+                onClick={() => handleTrigger(row.name)}
+                size="small"
+              >
+                <PlayArrowIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Start new ingestion cycle">
+              <IconButton
+                aria-label={`Start ${row.name}`}
+                disabled={isActionInProgress}
+                onClick={() => handleStart(row.name)}
+                size="small"
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Cancel current cycle (restart in 24 hours)">
+              <IconButton
+                aria-label={`Cancel ${row.name}`}
+                disabled={isActionInProgress}
+                onClick={() => handleCancel(row.name)}
+                size="small"
+              >
+                <StopIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        );
+      },
     },
   ];
 
