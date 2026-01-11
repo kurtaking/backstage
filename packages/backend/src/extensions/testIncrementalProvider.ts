@@ -170,3 +170,91 @@ export const testIncrementalProvider = createBackendModule({
     });
   },
 });
+
+export const testIncrementalProviderTwo = createBackendModule({
+  pluginId: 'catalog',
+  moduleId: 'test-incremental-provider-two',
+  register(reg) {
+    reg.registerInit({
+      deps: {
+        logger: coreServices.logger,
+        providers: incrementalIngestionProvidersExtensionPoint,
+      },
+      async init({ logger, providers }) {
+        const providerName = 'test-incremental-provider-two';
+        const totalPages = 10; // Generate 10 pages of entities (50 total with 5 per page)
+        const itemsPerPage = 5;
+
+        const provider: IncrementalEntityProvider<Cursor, Context> = {
+          getProviderName: () => providerName,
+
+          around: async burst => {
+            logger.info(
+              `[${providerName}] Starting ingestion cycle - will generate ${totalPages} pages`,
+            );
+            await burst({ providerName });
+            logger.info(`[${providerName}] Ingestion cycle complete`);
+          },
+
+          next: async (context, cursor) => {
+            const currentPage = cursor?.page ?? 1;
+            const { providerName: name } = context;
+
+            // Simulate some processing time
+            await new Promise(resolve => setTimeout(resolve, 600));
+
+            logger.info(
+              `[${name}] Fetching page ${currentPage} of ${totalPages}`,
+            );
+
+            const entities = generateMockEntities(
+              name,
+              currentPage,
+              itemsPerPage,
+            );
+
+            const done = currentPage >= totalPages;
+
+            if (done) {
+              logger.info(
+                `[${name}] All pages fetched. Generated ${
+                  totalPages * itemsPerPage
+                } entities total.`,
+              );
+              return {
+                done: true as const,
+                entities,
+              };
+            }
+
+            const nextCursor: Cursor = { page: currentPage + 1 };
+
+            return {
+              done: false as const,
+              entities,
+              cursor: nextCursor,
+            };
+          },
+        };
+
+        providers.addProvider({
+          provider: provider,
+          options: {
+            // Wait 5 seconds between bursts
+            burstInterval: { seconds: 5 },
+            // Each burst can run for up to 30 seconds
+            burstLength: { seconds: 30 },
+            // Rest for 60 seconds after completing all pages
+            restLength: { seconds: 60 },
+          },
+        });
+
+        logger.info(
+          `[${providerName}] Test incremental provider registered. Will generate ${
+            totalPages * itemsPerPage
+          } mock entities.`,
+        );
+      },
+    });
+  },
+});

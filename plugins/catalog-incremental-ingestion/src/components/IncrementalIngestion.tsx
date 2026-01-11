@@ -43,7 +43,7 @@ export const IncrementalIngestion = () => {
   return (
     <Page themeId="tool">
       <Header
-        title="Incremental Ingestion"
+        title="Incremental Catalog Ingestion"
         subtitle="Manage catalog incremental entity providers"
       />
 
