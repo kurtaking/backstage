@@ -79,13 +79,26 @@ export interface ProviderPurgeResponse {
 }
 
 /**
+ * A single ingestion mark record.
+ *
+ * @public
+ */
+export interface IngestionMarkRecord {
+  id: string;
+  sequence: number;
+  ingestion_id: string;
+  cursor: unknown;
+  created_at: string;
+}
+
+/**
  * Response for getting ingestion marks.
  *
  * @public
  */
 export interface IngestionMarksResponse {
   success: boolean;
-  records?: unknown[];
+  records?: IngestionMarkRecord[];
   message?: string;
 }
 

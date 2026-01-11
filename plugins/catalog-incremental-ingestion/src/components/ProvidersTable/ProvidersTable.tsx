@@ -29,7 +29,7 @@ import {
 import { useApi, alertApiRef } from '@backstage/frontend-plugin-api';
 import useAsync from 'react-use/esm/useAsync';
 import Typography from '@material-ui/core/Typography';
-import { incrementalIngestionApiRef } from '../../api';
+import { incrementalIngestionApiRef, IngestionMarkRecord } from '../../api';
 import {
   Box,
   IconButton,
@@ -49,14 +49,6 @@ interface ProviderRow {
   status: string;
   nextActionAt?: string;
   lastError?: string;
-}
-
-interface MarkRecord {
-  id: string;
-  sequence: number;
-  ingestion_id: string;
-  cursor: unknown;
-  created_at: string;
 }
 
 interface IncrementalEntityProvidersTableProps {
@@ -361,11 +353,11 @@ export const IncrementalEntityProvidersTable = ({
       value: marksData,
       loading: marksLoading,
       error: marksError,
-    } = useAsync(async () => {
+    } = useAsync(async (): Promise<IngestionMarkRecord[]> => {
       try {
         const response = await marksApi.getProviderMarks(rowData.name);
         if (response.success && response.records) {
-          return response.records as MarkRecord[];
+          return response.records;
         }
         if (response.message) {
           return [];
@@ -404,9 +396,16 @@ export const IncrementalEntityProvidersTable = ({
 
     return (
       <Box p={1}>
-        <Typography variant="subtitle2" style={{ marginBottom: 8 }}>
-          Ingestion Marks ({marksData.length})
-        </Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={1}
+        >
+          <Typography variant="subtitle2">
+            Ingestion Marks ({marksData.length})
+          </Typography>
+        </Box>
         <List dense disablePadding>
           {marksData.map((mark, index) => {
             let cursorString: string | null = null;
@@ -476,14 +475,12 @@ export const IncrementalEntityProvidersTable = ({
   };
 
   return (
-    <>
-      <Table
-        title="Incremental Entity Providers"
-        options={{ search: false, paging: false }}
-        data={providersWithStatus}
-        columns={columns}
-        detailPanel={({ rowData }) => <MarksDetailPanel rowData={rowData} />}
-      />
-    </>
+    <Table
+      title="Incremental Entity Providers"
+      options={{ search: false, paging: false }}
+      data={providersWithStatus}
+      columns={columns}
+      detailPanel={({ rowData }) => <MarksDetailPanel rowData={rowData} />}
+    />
   );
 };
